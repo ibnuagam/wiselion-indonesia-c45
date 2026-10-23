@@ -1,0 +1,31 @@
+.watch-card .watch-price .watch-sale-badge {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border: 1px solid #14283f;
+    border-radius: 5px;
+    background: #14283f;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: .4px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+html[data-theme="dark"] .watch-card .watch-price .watch-sale-badge {
+    background: #e9cf94;
+    border-color: #e9cf94;
+    color: #14283f;
+}
+
+@media (max-width: 760px) {
+    .watch-card .watch-price .watch-sale-badge {
+        padding: 6px 8px;
+        font-size: 9px;
+        letter-spacing: .3px;
+    }
+}

@@ -1,0 +1,9 @@
+<div class="c45-tree-node">
+@if($node['type'] === 'leaf')
+<div class="c45-leaf"><span class="analysis-tag">DAUN · {{ $node['count'] }} observasi</span><strong>{{ $node['class'] }}</strong><p>Entropy {{ number_format($node['entropy'], 4) }} · {{ $node['stop_reason'] ?? 'leaf' }}</p><p>@foreach($node['distribution'] as $label => $count){{ $label }}: {{ $count }}{{ !$loop->last ? ' · ' : '' }}@endforeach</p></div>
+@else
+<details @if($node['depth'] < 2) open @endif><summary><span class="analysis-tag">NODE · {{ $node['count'] }} observasi</span><strong>{{ $features[$node['feature']] }} ≤ {{ number_format($node['threshold'], 2, ',', '.') }}?</strong><span>Gain ratio {{ number_format($node['gain_ratio'], 4) }} · Entropy {{ number_format($node['entropy'], 4) }}</span></summary>
+<div class="c45-branches"><section><span class="c45-branch-label">YA · ≤ {{ number_format($node['threshold'], 2, ',', '.') }}</span>@include('analysis.tree', ['node' => $node['left']])</section><section><span class="c45-branch-label">TIDAK · &gt; {{ number_format($node['threshold'], 2, ',', '.') }}</span>@include('analysis.tree', ['node' => $node['right']])</section></div></details>
+@endif
+@if(!empty($node['candidates']))<details class="c45-calculation"><summary>Lihat perhitungan kandidat node</summary><div class="table-scroll"><table><thead><tr><th>Fitur</th><th>Ambang</th><th>Gain awal</th><th>Penalti MDL</th><th>Gain terkoreksi</th><th>Split info</th><th>Gain ratio</th></tr></thead><tbody>@foreach($node['candidates'] as $candidate)<tr><td>{{ $features[$candidate['feature']] }}</td><td>{{ number_format($candidate['threshold'], 2) }}</td><td>{{ number_format($candidate['raw_gain'], 6) }}</td><td>{{ number_format($candidate['mdl_penalty'], 6) }}</td><td>{{ number_format($candidate['gain'], 6) }}</td><td>{{ number_format($candidate['split_info'], 6) }}</td><td>{{ number_format($candidate['gain_ratio'], 6) }}</td></tr>@endforeach</tbody></table></div></details>@endif
+</div>

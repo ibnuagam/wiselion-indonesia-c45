@@ -1,0 +1,2 @@
+@props(['rows'])
+<nav class="pagination" aria-label="Halaman data"><span>{{ $rows->total() }} data · Halaman {{ $rows->currentPage() }} dari {{ $rows->lastPage() }}</span><div>@if($rows->previousPageUrl())<a class="button button-secondary" href="{{ $rows->previousPageUrl() }}">Sebelumnya</a>@endif @if($rows->nextPageUrl())<a class="button button-secondary" href="{{ $rows->nextPageUrl() }}">Berikutnya</a>@endif</div></nav>

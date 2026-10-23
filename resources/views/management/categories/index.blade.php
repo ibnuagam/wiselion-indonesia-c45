@@ -1,0 +1,7 @@
+@extends('layouts.portal')
+@section('title', 'Kategori produk')
+@section('content')
+<div class="page-heading"><div><p class="section-label">MASTER DATA</p><h1>Kategori produk</h1><p>Kelompokkan produk agar data penjualan lebih mudah dianalisis.</p></div><a href="{{ route('categories.create') }}" class="button button-primary">+ Tambah kategori</a></div>
+<form class="filter-bar" method="GET"><div class="filter-field grow"><label for="q">Cari kategori</label><input id="q" name="q" placeholder="Nama kategori…" value="{{ request('q') }}"></div><div class="filter-field"><label for="archived">Status data</label><select id="archived" name="archived"><option value="0">Data aktif</option><option value="1" @selected(request()->boolean('archived'))>Arsip</option></select></div><button class="button button-primary">Tampilkan</button></form>
+<section class="table-panel"><div class="table-scroll"><table><thead><tr><th>Kategori</th><th>Deskripsi</th><th>Jumlah produk</th><th>Aksi</th></tr></thead><tbody>@forelse($categories as $category)<tr><td><strong>{{ $category->name }}</strong></td><td class="wrap-cell">{{ $category->description ?: '—' }}</td><td>{{ $category->products_count }}</td><td><div class="row-actions"><x-archive-action :record="$category" resource="categories" /></div></td></tr>@empty<tr><td colspan="4" class="empty-state">Belum ada kategori yang sesuai.</td></tr>@endforelse</tbody></table></div><x-pager :rows="$categories" /></section>
+@endsection

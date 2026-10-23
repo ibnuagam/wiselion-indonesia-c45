@@ -1,0 +1,27 @@
+@extends('layouts.portal')
+@section('title', 'Ringkasan bisnis')
+@section('content')
+<div class="page-heading"><div><p class="section-label">SALES ANALYTICS</p><h1>Ringkasan penjualan</h1><p>Pantau performa produk dan perkembangan penjualan bisnis Anda.</p></div>@if(auth()->user()->isAdmin())<a class="button button-primary" href="{{ route('sales.create') }}">+ Catat penjualan</a>@endif</div>
+<form class="filter-bar" method="GET" action="{{ url()->current() }}"><x-period-filter :products="$filterProducts" :categories="$categories" /><a class="reset-link" href="{{ url()->current() }}">Reset</a></form>
+<div class="notice"><span class="notice-dot"></span><div><strong>Ringkasan operasional · bukan hasil klasifikasi</strong><span>Grafik memakai catatan penjualan tersimpan, termasuk data lama yang belum diverifikasi. Kelas dari aturan skor sementara sudah tidak digunakan. Buka Analisis C4.5 untuk hasil snapshot dengan asal data dan periode yang jelas.</span></div></div>
+<section class="metric-grid" aria-label="Ringkasan penjualan">
+@foreach([['Total produk', number_format($totalProducts), 'box', 'Termasuk produk tanpa penjualan'], ['Unit terjual', number_format($totalUnits), 'chart', 'Pada periode terpilih'], ['Total omset', 'Rp '.number_format($totalRevenue, 0, ',', '.'), 'chart', 'Unit terjual × harga satuan'], ['Frekuensi order', number_format($totalOrders), 'grid', 'Jumlah order dalam catatan']] as $card)
+<article class="metric-card metric-{{ $loop->index }}"><div class="metric-label">{{ $card[0] }}<x-icon :name="$card[2]" /></div><strong>{{ $card[1] }}</strong><small>{{ $card[3] }}</small></article>@endforeach
+</section>
+<div class="analytics-grid"><section class="table-panel chart-panel"><header class="panel-heading"><div><h2>Tren omset bulanan</h2><p>Hingga 12 bulan tercatat terbaru · rupiah</p></div><span class="outline-badge">{{ $monthlyCount }} bulan tercatat</span></header><x-sales-chart :rows="$monthly" /><p class="chart-caption">
+@if($monthlyCount < 2)
+Minimal dua bulan tercatat diperlukan untuk membandingkan tren.
+@else
+Bulan yang belum memiliki catatan tidak dianggap sebagai penjualan nol.
+@endif
+</p></section>
+<section class="table-panel chart-panel"><header class="panel-heading"><div><h2>Analisis C4.5</h2><p>Snapshot data nyata terbaru · terpisah dari filter grafik</p></div></header>
+<div class="analysis-dashboard-card">@if($latestAnalysis)<strong>{{ $latestAnalysis->name }}</strong><p>{{ $latestAnalysis->period_start->format('m/Y') }} – {{ $latestAnalysis->period_end->format('m/Y') }} · {{ $latestAnalysis->data_count }} observasi produk-bulan</p><a class="button button-primary" href="{{ route('analyses.show', $latestAnalysis) }}">Buka hasil tersimpan</a>@else<strong>Belum ada analisis data nyata</strong><p>Impor riwayat penjualan dan kelas acuan Admin sebelum membangun model. Tidak ada kelas atau akurasi yang dikarang untuk produk tanpa data.</p><a class="button button-primary" href="{{ route('analyses.index') }}">Buka ruang analisis</a>@endif</div>
+</section></div>
+<div class="analytics-grid secondary-grid"><section class="table-panel chart-panel"><header class="panel-heading"><div><h2>Unit terjual per bulan</h2><p>Volume dari periode yang memiliki catatan</p></div></header><x-sales-chart :rows="$monthly" metric="units" /></section>
+<section class="table-panel chart-panel"><header class="panel-heading"><div><h2>Omset per kategori</h2><p>Kontribusi pada periode terpilih</p></div></header><div class="category-bars">@forelse($categoryRevenue as $name => $value)<div><p><span>{{ $name }}</span><strong>Rp {{ number_format($value, 0, ',', '.') }}</strong></p><div class="bar-track"><i style="width:{{ $totalRevenue ? $value / $totalRevenue * 100 : 0 }}%"></i></div></div>@empty<p class="empty-state">Belum ada penjualan.</p>@endforelse</div></section></div>
+<section class="table-panel"><header class="panel-heading"><div><h2>Performa produk</h2><p>Hingga 10 produk berdasarkan omset tertinggi pada filter terpilih; bukan kelas C4.5.</p></div></header><div class="table-scroll"><table><thead><tr><th>Produk</th><th>Kategori</th><th class="number">Unit</th><th class="number">Omset</th></tr></thead><tbody>
+@forelse($products as $row)<tr><td><div class="product-cell">@if($row['product']->photo_url)<img class="product-thumb" src="{{ $row['product']->photo_url }}" alt="{{ $row['product']->name }}">@else<span class="product-symbol"><x-icon name="box" /></span>@endif<div><strong>{{ $row['product']->name }}</strong><small>{{ $row['product']->code }}</small></div></div></td><td>{{ $row['product']->category->name }}</td><td class="number">{{ number_format($row['units_sold']) }}</td><td class="number">Rp {{ number_format($row['total_revenue'], 0, ',', '.') }}</td></tr>@empty<tr><td colspan="4" class="empty-state">Belum ada produk.</td></tr>@endforelse
+</tbody></table></div></section>
+<section class="table-panel yearly-panel"><header class="panel-heading"><div><h2>Rekap tahunan</h2><p>Akumulasi catatan yang termasuk dalam filter.</p></div></header><div class="table-scroll"><table><thead><tr><th>Tahun</th><th class="number">Unit terjual</th><th class="number">Omset</th></tr></thead><tbody>@forelse($yearly as $year => $row)<tr><td>{{ $year }}</td><td class="number">{{ number_format($row['units']) }}</td><td class="number">Rp {{ number_format($row['revenue'], 0, ',', '.') }}</td></tr>@empty<tr><td colspan="3" class="empty-state">Belum ada data.</td></tr>@endforelse</tbody></table></div></section>
+@endsection
